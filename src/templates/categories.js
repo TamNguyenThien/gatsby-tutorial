@@ -2,16 +2,25 @@ import React from 'react';
 import Layout from '../components/layout';
 import { graphql, Link } from 'gatsby';
 
-export default ({ data }) => {
+export default ({ data, pageContext }) => {
+  const { category } = pageContext
+  const categoryEdges = data.allMarkdownRemark.edges.filter(
+    ({ node }) => node.frontmatter.categories.includes(category)
+  )
+
   return (
     <Layout>
-      <h1>Bài viết mới nhất</h1>
+      <h1>Chuyên mục {category}</h1>
 
-      {data.allMarkdownRemark.edges.map(({ node }, index) =>
+      {categoryEdges.map(({ node }, index) =>
         <div key={index}>
           <h3>
-            <Link to={node.fields.slug}>{node.frontmatter.title}</Link>
-            <span style={{ color: `#BBB` }}>— {node.frontmatter.date}</span>
+            <Link to={node.fields.slug}>
+              {node.frontmatter.title}
+            </Link>
+            <span style={{ color: `#BBB` }}>
+              — {node.frontmatter.date}
+            </span>
           </h3>
           <p>{node.excerpt}</p>
         </div>
@@ -31,6 +40,7 @@ export const query = graphql`
           frontmatter {
             title
             date(formatString: "DD/MM/YYYY")
+            categories
           }
           excerpt
           fields {
